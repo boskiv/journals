@@ -1,0 +1,5 @@
+aws_secret_access_key: "{{ vault_aws_secret_access_key }}"
+aws_access_key_id: "AKIAI2MBGQ632ZTQNHXA"
+aws_region: "us-east-1"
+registry_url: "{{ lookup('file', '.ecr') }}"
+stack_name: "journals-swarm"

@@ -1,0 +1,6 @@
+[local]
+localhost
+
+[local:vars]
+connection=local
+gather_facts=False

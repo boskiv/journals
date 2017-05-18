@@ -1,0 +1,16 @@
+---
+- hosts: local
+  tasks:
+    - include_vars: vault_vars.yml
+    - include_vars: vars.yml
+
+    - debug: var=registry_url
+
+    - name: ECR login
+      shell: "$(aws ecr get-login --region {{ aws_region }})"
+
+    - name: Build an image and push it to a private repo
+      docker_image:
+        path: "{{ playbook_dir }}/journals_code"
+        name: "{{ registry_url }}"
+        push: yes

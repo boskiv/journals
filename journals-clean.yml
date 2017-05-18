@@ -1,0 +1,15 @@
+---
+- hosts: localhost
+  tasks:
+    - include_vars: vault_vars.yml
+    - include_vars: vars.yml
+
+    - name: Cleanup stack
+      cloudformation:
+        region: "{{ aws_region }}"
+        stack_name: "{{ stack_name }}"
+        state: absent
+    - name: Destroy ECR Repo
+      ecs_ecr:
+        name: journals/app
+        state: absent
