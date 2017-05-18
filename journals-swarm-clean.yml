@@ -1,0 +1,14 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: False
+  tasks:
+  - name: Cleanup stack
+    cloudformation:
+      region: us-east-1
+      stack_name: "journals-swarm"
+      state: absent
+  - name: Destroy ECR Repo
+    ecs_ecr:
+      name: journals/app
+      state: absent
