@@ -2,5 +2,6 @@
 localhost
 
 [local:vars]
-connection=local
+ansible_connection=local
+ansible_python_interpreter=python
 gather_facts=False
