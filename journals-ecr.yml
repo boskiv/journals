@@ -1,0 +1,10 @@
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  Image:
+    Description: 'The image to use for a container, which is passed directly to the Docker daemon. You can use images in the Docker Hub registry or specify other repositories (repository-url/image:tag).'
+    Type: String
+Resources:
+  JournalsRepository:
+    Type: "AWS::ECR::Repository"
+    Properties:
+      RepositoryName: "journals-repository"

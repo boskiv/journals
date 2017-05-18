@@ -1,0 +1,26 @@
+---
+- host: localhost
+  tasks:
+  - name: launch ansible official edge docker template example
+    cloudformation:
+      stack_name: "journals-swarm"
+      state: present
+      region: us-east-1
+      disable_rollback: true
+      template_url: https://editions-us-east-1.s3.amazonaws.com/aws/edge/Docker.tmpl
+    args:
+      template_parameters:
+        ManagerSize: 1                  # "Number of Swarm managers?"
+        ClusterSize: 2                  # "Number of Swarm worker nodes?"
+        EnableCloudStor: no             # "Enable CloudStor"
+        EnableCloudWatchLogs: yes       # "Use Cloudwatch for container logging?"
+        EnableSystemPrune: yes          # "Enable daily resource cleanup?"
+        InstanceType: t2.micro          # "Agent worker instance type?"
+        KeyName: skiridomov-exness      # "Which SSH key to use?"
+        ManagerDiskSize: 20             # "Manager ephemeral storage volume size?"
+        ManagerDiskType: standard       # "Manager ephemeral storage volume type"
+        ManagerInstanceType: t2.micro   # "Swarm manager instance type?"
+        WorkerDiskSize: 20              # "Worker ephemeral storage volume size?"
+        WorkerDiskType: standard        # "Worker ephemeral storage volume type"
+      tags:
+        Stack: ansible-cloudformation
