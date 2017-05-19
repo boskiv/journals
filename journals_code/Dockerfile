@@ -6,5 +6,9 @@ RUN mvn clean package -DskipTests
 
 # Final stage to define our minimal runtime
 FROM openjdk:8-jre
+ADD ./docker-entrypoint.sh /
+RUN chmod +x /docker-entrypoint.sh
 COPY --from=build-env target/*.jar app.jar
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-Dspring.profiles.active=container","-jar","/app.jar"]
+RUN wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh
+RUN chmod +x /wait-for-it.sh
+ENTRYPOINT ["/docker-entrypoint.sh"]

@@ -9,6 +9,11 @@
     - name: ECR login
       shell: "$(aws ecr get-login --region {{ aws_region }})"
 
+    - name: Remove image
+      docker_image:
+        state: absent
+        name: "{{ registry_url }}"
+
     - name: Build an image and push it to a private repo
       docker_image:
         path: "{{ playbook_dir }}/journals_code"

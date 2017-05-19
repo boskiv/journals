@@ -1,0 +1,23 @@
+---
+- hosts: swarm-manager
+  gather_facts: no
+  pre_tasks:
+    - name: 'install python'
+      raw: sudo apk update && sudo apk add -y python vim
+  tasks:
+    - include_vars: vault_vars.yml
+    - include_vars: vars.yml
+
+    - name: Getting facts mannually
+      setup:
+
+    - name: Generate compose file
+      template:
+        src: "{{ playbook_dir }}/templates/docker-compose.yml.j2"
+        dest: "{{ ansible_env.HOME }}/docker-compose.yml"
+
+    - name: Run stack from compose file
+      shell: docker stack deploy -c "{{ ansible_env.HOME }}/docker-compose.yml" journals
+
+
+

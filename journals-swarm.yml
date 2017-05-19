@@ -14,8 +14,8 @@
       args:
         template_parameters:
           ManagerSize: "1"                  # "Number of Swarm managers?"
-          ClusterSize: "2"                  # "Number of Swarm worker nodes?"
-          EnableCloudStor: "no"             # "Enable CloudStor"
+          ClusterSize: "3"                  # "Number of Swarm worker nodes?"
+          EnableCloudStor: "yes"            # "Enable CloudStor"
           EnableCloudWatchLogs: "yes"       # "Use Cloudwatch for container logging?"
           EnableSystemPrune: "yes"          # "Enable daily resource cleanup?"
           InstanceType: "t2.micro"          # "Agent worker instance type?"
@@ -27,3 +27,16 @@
           WorkerDiskType: "standard"        # "Worker ephemeral storage volume type"
         tags:
           Stack: journals-swarm
+      register: swarm
+
+    - debug: var=swarm.stack_outputs.DefaultDNSTarget
+
+    - blockinfile:
+          path: "{{ playbook_dir }}/.app-url"
+          create: yes
+          block: |
+            [App URL]
+            http://{{ swarm.stack_outputs.DefaultDNSTarget }}:8080
+
+            [Visualizer URL]
+            http://{{ swarm.stack_outputs.DefaultDNSTarget }}:8081

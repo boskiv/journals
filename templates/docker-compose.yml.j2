@@ -1,0 +1,57 @@
+version: '3'
+services: 
+  journal:
+    image: {{ registry_url }}
+    environment:
+      - SPRING_PROFILES_ACTIVE=container
+      - DATABASE_HOST=mysql
+      - DATABASE_USER=jadmin
+      - DATABASE_PASSWORD=jpassword
+      - DATABASE_NAME=journals
+      - DATABASE_PORT=3306
+    ports:
+      - 8080:8080
+    depends_on:
+      - mysql
+    volumes:
+      - uploads:/root/uploads
+    deploy:
+      replicas: {{ app_replicas }}
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: "{{ app_cpu_limits }}"
+          memory: "{{ app_memory_limits }}"
+    networks:
+      - journal
+  mysql:
+    image: mysql
+    volumes:
+      - mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin
+      - MYSQL_DATABASE=journals
+      - MYSQL_USER=jadmin
+      - MYSQL_PASSWORD=jpassword
+    networks:
+      - journal
+
+  visualizer:
+      image: dockersamples/visualizer:stable
+      ports:
+        - "8081:8080"
+      volumes:
+        - "/var/run/docker.sock:/var/run/docker.sock"
+      deploy:
+        placement:
+          constraints: [node.role == manager]
+      networks:
+        - journal
+networks:
+  journal:
+volumes:
+  uploads:
+    driver: cloudstor:aws
+  mysql:
+    driver: cloudstor:aws

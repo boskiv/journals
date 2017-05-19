@@ -28,4 +28,25 @@ After gilling up this file you need to encrypt it with
 
 after this you can store in any CVS safely.
 
+To have run withou prompt you can use
+
 `echo "password" > .vaultpass`
+
+`.vaultpass` file in `.gitignore` so you can be sure that it would not be pushed in CVS
+
+
+## Vars
+
+All variables stored in `vars.yml` you can change it if you need.
+
+## Run
+Running the project in two steps:
+
+### Preparing swarm cluster
+
+To have swarm running in AWS I have use official docker docs.
+They provide us cloudfron template, that I run with ansible.
+
+
+
+### Build and deploy app
