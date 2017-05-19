@@ -4,6 +4,24 @@
     - include_vars: vault_vars.yml
     - include_vars: vars.yml
 
+    - stat:
+        path: "{{ KeyName }}"
+        get_md5: no
+      register: sshkey
+
+    - debug: var=sshkey
+
+    - name: ensure SSH key is generated
+      command: ssh-keygen -t rsa -f {{ KeyName }}  -N ''
+      when: not sshkey
+
+    - name: add ec2 key
+      ec2_key:
+        region: "{{ aws_region }}"
+        name: "{{ KeyName }}"
+        key_material: "{{ item }}"
+      with_file: "{{ KeyName }}.pub"
+
     - name: launch ansible official edge docker template example
       cloudformation:
         stack_name: "{{ stack_name }}"
@@ -13,18 +31,18 @@
         template_url: https://editions-us-east-1.s3.amazonaws.com/aws/edge/Docker.tmpl
       args:
         template_parameters:
-          ManagerSize: "1"                  # "Number of Swarm managers?"
-          ClusterSize: "3"                  # "Number of Swarm worker nodes?"
-          EnableCloudStor: "yes"            # "Enable CloudStor"
-          EnableCloudWatchLogs: "yes"       # "Use Cloudwatch for container logging?"
-          EnableSystemPrune: "yes"          # "Enable daily resource cleanup?"
-          InstanceType: "t2.micro"          # "Agent worker instance type?"
-          KeyName: "skivan-work"            # "Which SSH key to use?"
-          ManagerDiskSize: "20"             # "Manager ephemeral storage volume size?"
-          ManagerDiskType: "standard"       # "Manager ephemeral storage volume type"
-          ManagerInstanceType: "t2.micro"   # "Swarm manager instance type?"
-          WorkerDiskSize: "20"              # "Worker ephemeral storage volume size?"
-          WorkerDiskType: "standard"        # "Worker ephemeral storage volume type"
+          ManagerSize: "{{ ManagerSize }}"
+          ClusterSize: "{{ ClusterSize }}"
+          EnableCloudStor: "{{ EnableCloudStor }}"
+          EnableCloudWatchLogs: "{{ EnableCloudWatchLogs }}"
+          EnableSystemPrune: "{{ EnableSystemPrune }}"
+          InstanceType: "{{ InstanceType }}"
+          KeyName: "{{ KeyName }}"
+          ManagerDiskSize: "{{ ManagerDiskSize }}"
+          ManagerDiskType: "{{ ManagerDiskType }}"
+          ManagerInstanceType: "{{ ManagerInstanceType }}"
+          WorkerDiskSize: "{{ WorkerDiskSize }}"
+          WorkerDiskType: "{{ WorkerDiskType }}"
         tags:
           Stack: journals-swarm
       register: swarm
@@ -32,11 +50,38 @@
     - debug: var=swarm.stack_outputs.DefaultDNSTarget
 
     - blockinfile:
-          path: "{{ playbook_dir }}/.app-url"
-          create: yes
-          block: |
-            [App URL]
-            http://{{ swarm.stack_outputs.DefaultDNSTarget }}:8080
+        path: "{{ playbook_dir }}/.app-url"
+        create: yes
+        block: |
+          [App URL]
+          http://{{ swarm.stack_outputs.DefaultDNSTarget }}:8080
 
-            [Visualizer URL]
-            http://{{ swarm.stack_outputs.DefaultDNSTarget }}:8081
+          [Visualizer URL]
+          http://{{ swarm.stack_outputs.DefaultDNSTarget }}:8081
+
+    - name: Create or Get ECR Repo
+      ecs_ecr:
+        region: "{{ aws_region }}"
+        name: "{{ repo_name }}"
+      register: registry_url
+
+    - debug: var=registry_url.repository.repositoryUri
+    - copy: content="{{ registry_url.repository.repositoryUri }}" dest="{{ playbook_dir}}/.ecr"
+
+
+    # Gather facts about all running ec2 instances with a tag of Name:Example
+    - ec2_remote_facts:
+        region: "{{ aws_region }}"
+        filters:
+          instance-state-name: running
+          "tag:Name": journals-swarm-Manager
+      register: ec2_facts
+
+    - debug: var=ec2_facts.instances.0.public_ip_address
+
+    - blockinfile:
+        path: "{{ playbook_dir }}/.inventory"
+        create: yes
+        block: |
+          [swarm-manager]
+          manager ansible_host={{ ec2_facts.instances.0.public_ip_address}} ansible_user=docker ansible_ssh_private_key_file=journals-ssh-key

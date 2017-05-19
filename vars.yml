@@ -1,10 +1,24 @@
 aws_secret_access_key: "{{ vault_aws_secret_access_key }}"
 aws_access_key_id: "AKIAI2MBGQ632ZTQNHXA"
 aws_region: "us-east-1"
+
 registry_url: "{{ lookup('file', '.ecr') }}"
 stack_name: "journals-swarm"
 
+ManagerSize: "1"                  # "Number of Swarm managers?"
+ClusterSize: "3"                  # "Number of Swarm worker nodes?"
+EnableCloudStor: "yes"            # "Enable CloudStor"
+EnableCloudWatchLogs: "yes"       # "Use Cloudwatch for container logging?"
+EnableSystemPrune: "yes"          # "Enable daily resource cleanup?"
+InstanceType: "t2.micro"          # "Agent worker instance type?"
+KeyName: "journals-key"            # "Which SSH key to use?"
+ManagerDiskSize: "20"             # "Manager ephemeral storage volume size?"
+ManagerDiskType: "standard"       # "Manager ephemeral storage volume type"
+ManagerInstanceType: "t2.micro"   # "Swarm manager instance type?"
+WorkerDiskSize: "20"              # "Worker ephemeral storage volume size?"
+WorkerDiskType: "standard"        # "Worker ephemeral storage volume type"
 
 app_cpu_limits: 1
 app_memory_limits: 500M
 app_replicas: 2
+repo_name: "journals/app"

@@ -3,7 +3,13 @@ This section describes prepare procedures to create and manage swarm cluster in 
 ## Prerequisite
 To use deployment system you need:
 
+* python2
 * ansible==2.3.0.0
+* awscli==1.11.89
+
+You can install it with:
+
+`pip install -r requirements.txt`
 
 ## Changes made in src
 

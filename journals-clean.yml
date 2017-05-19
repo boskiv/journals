@@ -9,7 +9,15 @@
         region: "{{ aws_region }}"
         stack_name: "{{ stack_name }}"
         state: absent
+
     - name: Destroy ECR Repo
       ecs_ecr:
-        name: journals/app
+        name: "{{ repo_name }}"
         state: absent
+
+    - name: remove app key
+      ec2_key:
+        region: "{{ aws_region }}"
+        name: "{{ KeyName }}"
+        state: absent
+

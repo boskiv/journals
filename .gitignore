@@ -3,3 +3,5 @@
 .ecr
 *.retry
 .app-url
+.vaultpass
+journals-key
