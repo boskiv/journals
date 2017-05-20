@@ -6,8 +6,8 @@
 
     - debug: var=registry_url
 
-    - name: ECR login
-      shell: "$(aws ecr get-login --region {{ aws_region }})"
+    - name: Get ECR Token
+      shell: "{{ playbook_dir }}/.ecr_login.sh"
 
     - name: Remove image
       docker_image:

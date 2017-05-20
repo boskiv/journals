@@ -4,7 +4,3 @@ localhost
 [local:vars]
 ansible_connection=local
 ansible_python_interpreter=python
-# BEGIN ANSIBLE MANAGED BLOCK
-[swarm-manager]
-manager ansible_host=54.173.52.179 ansible_user=docker
-# END ANSIBLE MANAGED BLOCK

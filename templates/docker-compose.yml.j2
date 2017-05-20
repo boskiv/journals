@@ -6,7 +6,7 @@ services:
       - SPRING_PROFILES_ACTIVE=container
       - DATABASE_HOST=mysql
       - DATABASE_USER=jadmin
-      - DATABASE_PASSWORD=jpassword
+      - DATABASE_PASSWORD={{ vault_database_password }}
       - DATABASE_NAME=journals
       - DATABASE_PORT=3306
     ports:
@@ -30,10 +30,10 @@ services:
     volumes:
       - mysql:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=admin
+      - MYSQL_ROOT_PASSWORD={{ vault_mysql_root_password }}
       - MYSQL_DATABASE=journals
       - MYSQL_USER=jadmin
-      - MYSQL_PASSWORD=jpassword
+      - MYSQL_PASSWORD={{ vault_database_password }}
     networks:
       - journal
 

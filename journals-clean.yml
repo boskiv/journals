@@ -11,9 +11,7 @@
         state: absent
 
     - name: Destroy ECR Repo
-      ecs_ecr:
-        name: "{{ repo_name }}"
-        state: absent
+      shell: aws ecr delete-repository --force --repository-name "{{ repo_name }}"
 
     - name: remove app key
       ec2_key:

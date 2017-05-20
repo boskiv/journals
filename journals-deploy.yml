@@ -3,7 +3,7 @@
   gather_facts: no
   pre_tasks:
     - name: 'install python'
-      raw: sudo apk update && sudo apk add -y python vim
+      raw: sudo apk update && sudo apk add -y python vim rsync
   tasks:
     - include_vars: vault_vars.yml
     - include_vars: vars.yml
@@ -11,13 +11,28 @@
     - name: Getting facts mannually
       setup:
 
+    - name: Put ssh key for node managment
+      synchronize:
+        src: "{{ playbook_dir }}/{{ KeyName }}"
+        dest: "{{ ansible_env.HOME }}/.ssh/id_rsa"
+
+    - name: Put ecr-login script
+      synchronize:
+        src: "{{ playbook_dir }}/.ecr_login.sh"
+        dest: "{{ ansible_env.HOME }}/.ecr_login.sh"
+
+    - name: Execute ecr login on manager node
+      shell: "{{ ansible_env.HOME }}/.ecr_login.sh"
+
+
     - name: Generate compose file
       template:
         src: "{{ playbook_dir }}/templates/docker-compose.yml.j2"
         dest: "{{ ansible_env.HOME }}/docker-compose.yml"
 
     - name: Run stack from compose file
-      shell: docker stack deploy -c "{{ ansible_env.HOME }}/docker-compose.yml" journals
+      shell: docker stack deploy -c "{{ ansible_env.HOME }}/docker-compose.yml" journals --with-registry-auth
+
 
 
 

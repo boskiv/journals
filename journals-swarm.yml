@@ -9,11 +9,11 @@
         get_md5: no
       register: sshkey
 
-    - debug: var=sshkey
+    - debug: var=sshkey.stat
 
     - name: ensure SSH key is generated
       command: ssh-keygen -t rsa -f {{ KeyName }}  -N ''
-      when: not sshkey
+      when: not sshkey.stat.exists
 
     - name: add ec2 key
       ec2_key:
@@ -77,11 +77,56 @@
           "tag:Name": journals-swarm-Manager
       register: ec2_facts
 
-    - debug: var=ec2_facts.instances.0.public_ip_address
-
     - blockinfile:
         path: "{{ playbook_dir }}/.inventory"
         create: yes
         block: |
           [swarm-manager]
-          manager ansible_host={{ ec2_facts.instances.0.public_ip_address}} ansible_user=docker ansible_ssh_private_key_file=journals-ssh-key
+          manager ansible_host={{ ec2_facts.instances.0.public_ip_address}} ansible_user=docker ansible_ssh_private_key_file={{ KeyName }}
+
+    - name: Add host dynamicly to make it availible in this playbook immediatly
+      add_host:
+        hostname: swarm-manager
+        ansible_host: "{{ ec2_facts.instances.0.public_ip_address }}"
+        ansible_user: docker
+        ansible_ssh_private_key_file: "{{ KeyName }}"
+
+    - name: save ECR login to use in swarm nodes
+      shell: "aws ecr get-login --region {{ aws_region }}"
+      register: login
+
+    - name: Save login script to file
+      copy:
+        content: "{{ login.stdout }}"
+        dest: "{{ playbook_dir }}/.ecr_login.sh"
+
+    - name: Make it executable
+      file:
+        path: "{{ playbook_dir }}/.ecr_login.sh"
+        mode: 0755
+
+
+- hosts: swarm-manager
+  gather_facts: no
+  pre_tasks:
+    - name: 'install python'
+      raw: sudo apk update && sudo apk add -y python vim rsync
+  tasks:
+    - include_vars: vault_vars.yml
+    - include_vars: vars.yml
+
+    - name: Getting facts mannually
+      setup:
+
+    - name: Put ssh key for node managment
+      synchronize:
+        src: "{{ playbook_dir }}/{{ KeyName }}"
+        dest: "{{ ansible_env.HOME }}/.ssh/id_rsa"
+
+    - name: Put ecr-login script
+      synchronize:
+        src: "{{ playbook_dir }}/.ecr_login.sh"
+        dest: "{{ ansible_env.HOME }}/.ecr_login.sh"
+
+    - name: Execute ecr login on manager node
+      shell: "{{ ansible_env.HOME }}/.ecr_login.sh"

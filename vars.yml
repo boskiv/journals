@@ -1,6 +1,6 @@
-aws_secret_access_key: "{{ vault_aws_secret_access_key }}"
-aws_access_key_id: "AKIAI2MBGQ632ZTQNHXA"
-aws_region: "us-east-1"
+aws_secret_access_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
+aws_access_key_id: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
+aws_region: "{{ lookup('env', 'AWS_DEFAULT_REGION') | default('us-east-1','us-east-1') }}"
 
 registry_url: "{{ lookup('file', '.ecr') }}"
 stack_name: "journals-swarm"

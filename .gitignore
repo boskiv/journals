@@ -1,7 +1,8 @@
 .idea
 .env
 .ecr
+.ecr_login.sh
 *.retry
 .app-url
 .vaultpass
-journals-key
+journals-key*
