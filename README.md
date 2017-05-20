@@ -1,5 +1,9 @@
 # Prepare
 This section describes prepare procedures to create and manage swarm cluster in AWS.
+
+![alt text](https://github.com/boskiv/journals/raw/master/cloudcraft-docker-swarm-architecture.png "Docker Swarm Architecture")
+
+
 ## Prerequisite
 To use deployment system you need:
 
