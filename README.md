@@ -3,9 +3,13 @@ This section describes prepare procedures to create and manage swarm cluster in 
 ## Prerequisite
 To use deployment system you need:
 
+* docker
 * python2
-* ansible==2.3.0.0
 * awscli==1.11.89
+* ansible==2.3.0.0
+* boto==2.46.1
+* boto3==1.4.4
+* docker-py==1.10.6
 
 You can install it with:
 
@@ -14,15 +18,25 @@ You can install it with:
 
 ## Quick start
 
+Make a clean env:
+1. docker run -it -v $(pwd):/code -v /var/run/docker.sock:/var/run/docker.sock --rm docker:dind sh
+2. cd /code
+3. apk update && apk add python py-pip rsync python-dev gcc linux-headers musl-dev openssl-dev libffi-dev openssh-client
+4. pip install -U -r requirements.txt
+5. aws configure
+6. echo password > .vaultpass
+
+Running a project:
+
 1. `ansible-playbook journals-swarm.yml` (10 min first run) (by default 1 manager and 3 worker nodes)
-    1. `ansible-playbook journals-swarm.yml -e ClusterSize=5` (10 min first run)
-2. `ansible-playbook journals-build.yml` (10 min first run)
-3. `ansible-playbook journals-deploy.yml` (30 sec) (by default 2 replicas of app container)
-4. `ansible-playbook journals-deploy.yml -e app_replicas=5` (30 sec)
-5. open file .app-url and go to provided URLs to see cluster status and working app.
-6. ...
-7. Profit!!!
-8. `ansible-playbook journals-clean.yml` (10 min)
+2. (optional) `ansible-playbook journals-swarm.yml -e ClusterSize=5` (3 min)
+3. `ansible-playbook journals-build.yml` (10 min first run)
+4. `ansible-playbook journals-deploy.yml` (30 sec) (by default 2 replicas of app container)
+5. (optional) `ansible-playbook journals-deploy.yml -e app_replicas=5` (30 sec)
+6. open file .app-url and go to provided URLs to see cluster status and working app.
+7. ...
+8. Profit!!!
+9. `ansible-playbook journals-clean.yml` (10 min)
 
 
 # TL;DR;

@@ -9,8 +9,6 @@
         get_md5: no
       register: sshkey
 
-    - debug: var=sshkey.stat
-
     - name: ensure SSH key is generated
       command: ssh-keygen -t rsa -f {{ KeyName }}  -N ''
       when: not sshkey.stat.exists
@@ -47,8 +45,6 @@
           Stack: journals-swarm
       register: swarm
 
-    - debug: var=swarm.stack_outputs.DefaultDNSTarget
-
     - blockinfile:
         path: "{{ playbook_dir }}/.app-url"
         create: yes
@@ -65,9 +61,7 @@
         name: "{{ repo_name }}"
       register: registry_url
 
-    - debug: var=registry_url.repository.repositoryUri
     - copy: content="{{ registry_url.repository.repositoryUri }}" dest="{{ playbook_dir}}/.ecr"
-
 
     # Gather facts about all running ec2 instances with a tag of Name:Example
     - ec2_remote_facts:

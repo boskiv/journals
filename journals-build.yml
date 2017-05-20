@@ -4,8 +4,6 @@
     - include_vars: vault_vars.yml
     - include_vars: vars.yml
 
-    - debug: var=registry_url
-
     - name: Get ECR Token
       shell: "{{ playbook_dir }}/.ecr_login.sh"
 

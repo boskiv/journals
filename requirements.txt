@@ -1,2 +1,5 @@
 awscli==1.11.89
 ansible==2.3.0.0
+boto==2.46.1
+boto3==1.4.4
+docker-py==1.10.6
